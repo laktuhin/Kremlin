@@ -6,15 +6,27 @@ from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
+# ========== ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ ==========
+# Получаем токен из переменных окружения (обязательно!)
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("❌ ОШИБКА: Переменная окружения BOT_TOKEN не установлена!")
+
+# Получаем ID владельца из переменных окружения
+OWNER_IDS_STR = os.environ.get("OWNER_IDS", "")
+if OWNER_IDS_STR:
+    OWNER_IDS = [int(x.strip()) for x in OWNER_IDS_STR.split(",")]
+else:
+    OWNER_IDS = []
+    print("⚠️ ВНИМАНИЕ: OWNER_IDS не установлен. Функции администратора недоступны.")
+
+# Опциональные пути к файлам (можно переопределить через окружение)
+DATA_FILE = os.environ.get("DATA_FILE", "users_data.txt")
+TEMPLATES_FILE = os.environ.get("TEMPLATES_FILE", "templates.txt")
+EVENT_DATE_FILE = os.environ.get("EVENT_DATE_FILE", "event_date.txt")
+DEADLINE_FILE = os.environ.get("DEADLINE_FILE", "deadline.txt")
+
 # ========== НАСТРОЙКИ ==========
-BOT_TOKEN = "id7731281504_bot"  # Получите в личном кабинете MAX
-DATA_FILE = "users_data.txt"
-TEMPLATES_FILE = "templates.txt"
-EVENT_DATE_FILE = "event_date.txt"
-DEADLINE_FILE = "deadline.txt"
-
-OWNER_IDS = [217770759]  # В MAX ID пользователя — число (узнайте через @userinfobot)
-
 ALLOWED_RANKS = [
     "митрополит", "архиепископ", "епископ", "архимандрит",
     "протоиерей", "иерей", "иеромонах", "архидиакон",
@@ -700,7 +712,7 @@ async def handle_text(message: types.Message):
         )
         await message.answer("Что делаем дальше?", reply_markup=keyboard)
 
-# ========== АДМИН-ПАНЕЛЬ И ШАБЛОНЫ ==========
+# ========== АДМИН-ПАНЕЛЬ ==========
 async def cmd_admin(message: types.Message):
     user_id = message.sender.id
     if user_id not in OWNER_IDS:
